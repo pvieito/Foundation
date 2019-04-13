@@ -304,30 +304,35 @@ static CFURLRef _CFBundleCopyExecutableURLInDirectory2(CFBundleRef bundle, CFURL
     return executableURL;
 }
 
-static CFStringRef _CFBundleCopyNameByRemovingExcutablePlatformPrefixSuffix(CFStringRef str, CFStringRef prefix, CFStringRef suffix) {
-    CFStringRef bundleName = NULL;
-    
+static CFStringRef _CFBundleCopyNameByRemovingPrefixSuffixIfMatches(CFStringRef name, CFStringRef prefix, CFStringRef suffix) {
+    CFStringRef strippedName = NULL;
+    CFIndex nameLength = CFStringGetLength(name);
+    CFIndex prefixLength = CFStringGetLength(prefix);
+    CFIndex suffixLength = CFStringGetLength(suffix);
+    CFRange prefixRange = CFRangeMake(0, 0);
+    CFRange suffixRange = CFRangeMake(nameLength, 0);
+
     // Check if the executable has shared library prefix/suffix.
-    CFRange prefixRange = CFStringFind(str, prefix,
-                                       kCFCompareAnchored);
-    CFRange suffixRange = CFStringFind(str, suffix,
-                                       kCFCompareAnchored|kCFCompareBackwards);
+    if (prefixLength) {
+        prefixRange = CFStringFind(name, prefix, kCFCompareAnchored);
+    }
+    if (suffixLength) {
+        suffixRange = CFStringFind(name, suffix, kCFCompareAnchored | kCFCompareBackwards);
+    }
     
     // Only return the stripped string if both the prefix and suffix are found.
-    CFIndex inputStringLength = CFStringGetLength(str);
-    
     if (prefixRange.location != kCFNotFound &&
         suffixRange.location != kCFNotFound &&
         prefixRange.location == 0 &&
-        suffixRange.location + suffixRange.length == inputStringLength) {
+        suffixRange.location + suffixRange.length == nameLength) {
         
-        CFRange bundleNameRange = CFRangeMake(prefixRange.length,
-                                              inputStringLength - prefixRange.length - suffixRange.length);
+        CFRange strippedNameRange = CFRangeMake(
+            prefixRange.length, nameLength - prefixRange.length - suffixRange.length);
         
-        bundleName = CFStringCreateWithSubstring(kCFAllocatorSystemDefault, str, bundleNameRange);
+        strippedName = CFStringCreateWithSubstring(kCFAllocatorSystemDefault, name, strippedNameRange);
     }
     
-    return bundleName;
+    return strippedName;
 }
 
 
@@ -357,17 +362,15 @@ static CFURLRef _CFBundleCopyBundleURLForExecutablePath(CFStringRef str) {
         
         // Check if the executable has shared library prefix/suffix (libCF.dylib, libCF.so, CF.dll).
         if (!bundleName) {
-            bundleName = _CFBundleCopyNameByRemovingExcutablePlatformPrefixSuffix(executableName,
-                                                                                  _CFBundleSharedLibraryFilenamePrefix,
-                                                                                  _CFBundleSharedLibraryFilenameSuffix);
+            bundleName = _CFBundleCopyNameByRemovingPrefixSuffixIfMatches(
+                 executableName, _CFBundleSharedLibraryFilenamePrefix, _CFBundleSharedLibraryFilenameSuffix);
         }
         
 #if TARGET_OS_WINDOWS
         // Check if the executable has executable-style prefix/suffix (CF.exe).
         if (!bundleName) {
-            bundleName = _CFBundleCopyNameByRemovingExcutablePlatformPrefixSuffix(executableName,
-                                                                                  _CFBundleExecutableFilenamePrefix,
-                                                                                  _CFBundleExecutableFilenameSuffix);
+            bundleName = _CFBundleCopyNameByRemovingPrefixSuffixIfMatches(
+                executableName, _CFBundleExecutableFilenamePrefix, _CFBundleExecutableFilenameSuffix);
         }
 #endif /* TARGET_OS_WINDOWS */
         
@@ -377,13 +380,13 @@ static CFURLRef _CFBundleCopyBundleURLForExecutablePath(CFStringRef str) {
         }
         
 #if TARGET_OS_WINDOWS
-        // Windows: If this is a debug executable, strip the _debug suffix to find the bundle name.
+        // Windows: If this is a debug executable, strip the debug suffix to find the bundle name.
         if (bundleName) {
-            CFStringRef strippedName = _CFBundleCopyNameByRemovingExcutablePlatformPrefixSuffix(bundleName,
-                                                                                                _CFBundleFilenameDebugPrefix,
-                                                                                                _CFBundleFilenameDebugSuffix);
+            CFStringRef strippedName = _CFBundleCopyNameByRemovingPrefixSuffixIfMatches(
+                bundleName, _CFBundleFilenameDebugPrefix, _CFBundleFilenameDebugSuffix);
             
             if (strippedName) {
+                CFRelease(bundleName);
                 bundleName = CFStringCreateCopy(kCFAllocatorSystemDefault, strippedName);
                 CFRelease(strippedName);
             }
@@ -396,10 +399,12 @@ static CFURLRef _CFBundleCopyBundleURLForExecutablePath(CFStringRef str) {
         CFRelease(executableName);
         CFRelease(executableURL);
         
-        CFStringRef siblingResourceDirectoryName = CFStringCreateWithFormat(kCFAllocatorSystemDefault, NULL, CFSTR("%@.%@"), bundleName, _CFBundleSiblingResourceDirectoryExtension);
+        CFStringRef siblingResourceDirectoryName = CFStringCreateWithFormat(
+            kCFAllocatorSystemDefault, NULL, CFSTR("%@.%@"), bundleName, _CFBundleSiblingResourceDirectoryExtension);
         CFRelease(bundleName);
         
-        CFURLRef siblingResourceDirectoryURL = CFURLCreateCopyAppendingPathComponent(kCFAllocatorSystemDefault, parentDirectory, siblingResourceDirectoryName, true);
+        CFURLRef siblingResourceDirectoryURL = CFURLCreateCopyAppendingPathComponent(
+            kCFAllocatorSystemDefault, parentDirectory, siblingResourceDirectoryName, true);
         
         CFRelease(parentDirectory);
         CFRelease(siblingResourceDirectoryName);
