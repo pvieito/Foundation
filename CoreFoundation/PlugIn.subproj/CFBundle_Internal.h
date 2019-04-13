@@ -41,9 +41,13 @@ CF_EXTERN_C_BEGIN
 #if TARGET_OS_LINUX || TARGET_OS_BSD
 #define _CFBundleSharedLibraryFilenamePrefix CFSTR("lib")
 #define _CFBundleSharedLibraryFilenameSuffix CFSTR(".so")
+#define _CFBundleExecutableFilenamePrefix CFSTR("")
+#define _CFBundleExecutableFilenameSuffix CFSTR("")
 #elif TARGET_OS_DARWIN
 #define _CFBundleSharedLibraryFilenamePrefix CFSTR("lib")
 #define _CFBundleSharedLibraryFilenameSuffix CFSTR(".dylib")
+#define _CFBundleExecutableFilenamePrefix CFSTR("")
+#define _CFBundleExecutableFilenameSuffix CFSTR("")
 #elif TARGET_OS_WINDOWS
 #define _CFBundleSharedLibraryFilenamePrefix CFSTR("")
 #define _CFBundleSharedLibraryFilenameSuffix CFSTR(".dll")

@@ -392,8 +392,15 @@ CF_EXPORT _Nullable CFErrorRef CFReadStreamCopyError(CFReadStreamRef _Null_unspe
 CF_EXPORT _Nullable CFErrorRef CFWriteStreamCopyError(CFWriteStreamRef _Null_unspecified stream);
 
 CF_CROSS_PLATFORM_EXPORT CFStringRef _Nullable _CFBundleCopyExecutablePath(CFBundleRef bundle);
+
 CF_CROSS_PLATFORM_EXPORT Boolean _CFBundleSupportsFHSBundles(void);
 CF_CROSS_PLATFORM_EXPORT Boolean _CFBundleSupportsFreestandingBundles(void);
+
+CF_CROSS_PLATFORM_EXPORT CFStringRef _Nonnull _CFBundleGetPlatformSharedLibraryFilenamePrefix(void);
+CF_CROSS_PLATFORM_EXPORT CFStringRef _Nonnull _CFBundleGetPlatformSharedLibraryFilenameSuffix(void);
+CF_CROSS_PLATFORM_EXPORT CFStringRef _Nonnull _CFBundleGetPlatformExecutableFilenamePrefix(void);
+CF_CROSS_PLATFORM_EXPORT CFStringRef _Nonnull _CFBundleGetPlatformExecutableFilenameSuffix(void);
+
 CF_CROSS_PLATFORM_EXPORT CFStringRef __CFTimeZoneCopyDataVersionString(void);
 
 // https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html

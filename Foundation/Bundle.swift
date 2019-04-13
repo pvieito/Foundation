@@ -27,6 +27,38 @@ open class Bundle: NSObject {
         return _CFBundleSupportsFreestandingBundles()
         #endif
     }
+    
+    public static var _platformLibraryPrefix: String {
+        #if DEPLOYMENT_RUNTIME_OBJC
+        return "lib"
+        #else
+        return _CFBundleGetPlatformSharedLibraryFilenamePrefix()._swiftObject
+        #endif
+    }
+    
+    public static var _platformLibrarySuffix: String {
+        #if DEPLOYMENT_RUNTIME_OBJC
+        return ".dylib"
+        #else
+        return _CFBundleGetPlatformSharedLibraryFilenameSuffix()._swiftObject
+        #endif
+    }
+    
+    public static var _platformExecutablePrefix: String {
+        #if DEPLOYMENT_RUNTIME_OBJC
+        return ""
+        #else
+        return _CFBundleGetPlatformExecutableFilenamePrefix()._swiftObject
+        #endif
+    }
+    
+    public static var _platformExecutableSuffix: String {
+        #if DEPLOYMENT_RUNTIME_OBJC
+        return ""
+        #else
+        return _CFBundleGetPlatformExecutableFilenameSuffix()._swiftObject
+        #endif
+    }
 
     private static var _mainBundle : Bundle = {
         return Bundle(cfBundle: CFBundleGetMainBundle())

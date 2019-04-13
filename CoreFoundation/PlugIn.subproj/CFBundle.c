@@ -178,6 +178,24 @@ CF_CROSS_PLATFORM_EXPORT Boolean _CFBundleSupportsFreestandingBundles() {
 #endif
 }
 
+#if !DEPLOYMENT_RUNTIME_OBJC
+CF_CROSS_PLATFORM_EXPORT CFStringRef _CFBundleGetPlatformSharedLibraryFilenamePrefix() {
+    return _CFBundleSharedLibraryFilenamePrefix;
+}
+
+CF_CROSS_PLATFORM_EXPORT CFStringRef _CFBundleGetPlatformSharedLibraryFilenameSuffix() {
+    return _CFBundleSharedLibraryFilenameSuffix;
+}
+
+CF_CROSS_PLATFORM_EXPORT CFStringRef _CFBundleGetPlatformExecutableFilenamePrefix() {
+    return _CFBundleExecutableFilenamePrefix;
+}
+
+CF_CROSS_PLATFORM_EXPORT CFStringRef _CFBundleGetPlatformExecutableFilenameSuffix() {
+    return _CFBundleExecutableFilenameSuffix;
+}
+#endif
+
 #pragma mark -
 
 CF_PRIVATE os_log_t _CFBundleResourceLogger(void) {
